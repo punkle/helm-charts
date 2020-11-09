@@ -1,0 +1,44 @@
+apiVersion: getambassador.io/v2
+kind: Filter
+metadata:
+  name: "{{ .Values.host }}-oauth2-filter"
+spec:
+  OAuth2:
+    authorizationURL: "{{ .Values.auth.oauth2.host }}"
+    protectedOrigins:
+    - origin: "https://{{ .Values.host }}"
+    useSessionCookies:
+      value: true
+    clientID: {{ .Values.auth.oauth2.clientID }}
+    secret: {{ .Values.auth.oauth2.secret }}
+---
+apiVersion: getambassador.io/v2
+kind: FilterPolicy
+metadata:
+  name: {{ .Values.host }}-filter-policy
+spec:
+  rules:
+  - host: {{ .Values.host }}
+    path: "*"
+    filters:
+    - name: {{ .Values.host }}-oauth2-filter
+---
+apiVersion: getambassador.io/v2
+kind: Mapping
+metadata:
+  name: backstage-backend
+spec:
+  prefix: "/api"
+  rewrite: "/api"
+  host: {{ .Values.host }}
+  service: backstage-backend.default
+  precedence: 1
+---
+apiVersion: getambassador.io/v2
+kind: Mapping
+metadata:
+  name: backstage-frontend
+spec:
+  host: {{ .Values.host }}
+  prefix: "/"
+  service: backstage-frontend.default

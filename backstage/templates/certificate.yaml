@@ -1,0 +1,13 @@
+---
+apiVersion: getambassador.io/v2
+kind: Host
+metadata:
+  name: {{ .Values.host }}
+spec:
+  hostname: "{{ .Values.host }}"
+  acmeProvider:
+    authority: https://acme-staging-v02.api.letsencrypt.org/directory
+    email: {{ .Values.issuer.email }}
+  selector:
+    matchLabels:
+      hostname: {{ .Values.host }}
